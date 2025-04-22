@@ -8,13 +8,16 @@ function Laptop() {
     const {scene} = useGLTF("/pc2.glb")
     const screenRef = useRef<Mesh>(null);
 
+    const userHeigh = window.innerHeight;
+    const userWidth = window.innerWidth;
+
     const canvas = document.createElement('canvas');
-    canvas.width = 512
-    canvas.height = 512
+    canvas.width = userHeigh;
+    canvas.height = userWidth
     const ctx = canvas.getContext("2d");
     if(ctx){
         ctx.fillStyle = "black"
-        ctx.fillRect(0,0,512,512)
+        ctx.fillRect(0,0, userWidth, userHeigh)
         ctx.fillStyle = "white"
         ctx.font = "30px sans-serif"
         ctx.fillText("Haz clic aqui", 70, 100)
