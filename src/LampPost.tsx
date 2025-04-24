@@ -1,5 +1,4 @@
 import { useGLTF } from "@react-three/drei";
-import * as THREE from 'three';
 import { Object3D, SpotLight } from "three";
 import { useEffect, useRef } from "react";
 import { ThreeEvent } from "@react-three/fiber";
