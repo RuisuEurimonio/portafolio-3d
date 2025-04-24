@@ -1,13 +1,17 @@
 import { useGLTF } from "@react-three/drei";
-import { Object3D, SpotLight, SpotLightHelper } from "three";
+import * as THREE from 'three';
+import { Object3D, SpotLight } from "three";
 import { useEffect, useRef } from "react";
-import { useThree } from "@react-three/fiber";
+import { ThreeEvent } from "@react-three/fiber";
 
-const LampPost = () => {
-  const gltf = useGLTF("/lamp_post.glb");
+interface LampPostProps {
+  customFunction : (arg : boolean) => void
+}
+
+const LampPost : React.FC<LampPostProps> = ({customFunction}) => {
+  const { scene }  = useGLTF("/lamp_post.glb");
   const light = useRef<SpotLight>(null);
   const targetRef = useRef<Object3D>(new Object3D());
-  const scene = useThree((state) => state.scene);
 
   useEffect(() => {
     if (light.current) {
@@ -16,33 +20,38 @@ const LampPost = () => {
 
       light.current.target = targetRef.current;
 
-      const helper = new SpotLightHelper(light.current);
-      scene.add(helper);
-
       return () => {
-        scene.remove(helper);
         scene.remove(targetRef.current);
       };
     }
   }, [scene]);
 
+  const handleClick = (event : ThreeEvent<MouseEvent>) => {
+    event.stopPropagation();
+    customFunction(true);
+}
+
   return (
     <>
       <primitive
-        object={gltf.scene}
+        object={scene}
         position={[-20, -0.1, 20]}
         rotation={[0, 20, 0]}
         castShadow
         receiveShadow
+        onClick={(e : ThreeEvent<MouseEvent>)=>{
+                            const clicked = e.intersections[0].object
+                            if(clicked.name === "Sing1") handleClick(e)
+                        }}
       />
       <spotLight
         ref={light}
         castShadow
-        position={[-21, 10.5, 21.2]}
+        position={[-21, 10.3, 21.2]}
         angle={9}
         penumbra={0.5}
-        intensity={15}
-        distance={10}
+        intensity={25}
+        distance={12}
       />
     </>
   );
