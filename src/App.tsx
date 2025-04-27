@@ -1,10 +1,12 @@
 import { Canvas } from "@react-three/fiber";
 import "./App.css";
-import MainScene from "./MainScene";
+
 import { EffectComposer, Noise } from "@react-three/postprocessing";
-import LampPost from "./LampPost";
 import { useState } from "react";
-import { OrbitControls } from "@react-three/drei";
+import { OrbitControls, Sparkles } from "@react-three/drei";
+import MainScene from "./scenes/MainScene";
+import LampPost from "./components/LampPost";
+import MyName from "./components/MyName";
 
 function App() {
 
@@ -25,7 +27,9 @@ function App() {
       <ambientLight intensity={0.05} />
       <MainScene hovered={hovered}/>
       <LampPost customFunction={setHovered} />
-      <OrbitControls />
+      <Sparkles count={100} scale={[10, 10, 10]} speed={0.5} />
+      <MyName />
+      <OrbitControls /> 
     </Canvas>
   );
 }
