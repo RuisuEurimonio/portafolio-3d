@@ -9,9 +9,11 @@ interface MainSceneProps {
     isContinueClicked : boolean,
     isExitClicked: boolean,
     setIsExitClicked: (arg : boolean) => void;
+    isContinueHovered : boolean,
+    isExitHovered : boolean
 }
 
-const Tvs : React.FC<MainSceneProps> = ({isContinueClicked = false, isExitClicked = false, setIsExitClicked}) => {
+const Tvs : React.FC<MainSceneProps> = ({isContinueClicked = false, isExitClicked = false, setIsExitClicked, isContinueHovered, isExitHovered}) => {
 
     const navigate = useNavigate();
     const {scene} = useGLTF("/retropc.glb")
@@ -50,10 +52,8 @@ const Tvs : React.FC<MainSceneProps> = ({isContinueClicked = false, isExitClicke
     useEffect(()=>{
         if(isContinueClicked){
             gsap.to(light, {
-                intensity: 20 + Math.random(), 
-                duration: 0.1 + Math.random() * 0.3,
-                repeat: -1,
-                yoyo: true,
+                intensity: 20, 
+                duration: 0.3,
                 ease: "power1.inOut",
             })
         }
@@ -76,6 +76,30 @@ const Tvs : React.FC<MainSceneProps> = ({isContinueClicked = false, isExitClicke
             return () => clearTimeout(timeOut);
         }
     },[isExitClicked])
+
+    useEffect(()=>{
+        if(isContinueHovered){
+            gsap.to(light, {
+                intensity: 20 + Math.random(), 
+                duration: 0.1 + Math.random() * 0.3,
+                repeat: -1,
+                yoyo: true,
+                ease: "power1.inOut",
+            })
+        }
+    },[isContinueHovered])
+
+    useEffect(()=>{
+        if(isExitHovered){
+            gsap.to(light, {
+                intensity: 20 + Math.random(), 
+                duration: 0.1 + Math.random() * 0.3,
+                repeat: -1,
+                yoyo: true,
+                ease: "power1.inOut",
+            })
+        }
+    },[isExitHovered])
 
     return(
         <>
