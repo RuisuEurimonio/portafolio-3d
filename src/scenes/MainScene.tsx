@@ -1,100 +1,36 @@
-import { useGLTF } from "@react-three/drei";
-import { ThreeEvent } from "@react-three/fiber";
-import gsap from "gsap";
-import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { CanvasTexture, Mesh, MeshBasicMaterial, SpotLight } from "three";
+import { Canvas } from "@react-three/fiber";
+import { EffectComposer, Noise } from "@react-three/postprocessing";
+import LampPost from "../components/LampPost";
+import { OrbitControls, Sparkles } from "@react-three/drei";
+import MyName from "../components/MyName";
+import { useState } from "react";
+import Tvs from "../components/Tvs";
 
-interface MainSceneProps {
-    isContinueClicked : boolean,
-    isExitClicked: boolean,
-    setIsExitClicked: (arg : boolean) => void;
-}
 
-const MainScene : React.FC<MainSceneProps> = ({isContinueClicked = false, isExitClicked = false, setIsExitClicked}) => {
+const MainScene = () => {
 
-    const navigate = useNavigate();
-    const {scene} = useGLTF("/retropc.glb")
-    const screenRef = useRef<Mesh>(null);
-    const lightRef = useRef<SpotLight>(null);
-    const light = lightRef.current;
-
-    const canvas = document.createElement('canvas');
-    canvas.width = 512;
-    canvas.height = 512
-    const ctx = canvas.getContext("2d");
-    if(ctx){
-        ctx.fillStyle = "black"
-        ctx.fillRect( 100 , 100 , canvas.width, canvas.height)
-        ctx.fillStyle = "white"
-        ctx.font = "15px sans-serif"
-        ctx.fillText("Haz clic aqui", 30, 50)
-    }
-
-    const texture = new CanvasTexture(canvas);
-
-    scene.traverse((child)=>{
-        if(child.name === "Screen1"){
-            if(child instanceof Mesh){
-                child.material = new MeshBasicMaterial({map: texture})
-                screenRef.current = child;
-            }
-        }
-    })
-
-    const handleClick = (event : ThreeEvent<MouseEvent>) => {
-        event.stopPropagation();
-        alert("Pantalla clicleada")
-    }
-
-    useEffect(()=>{
-        if(isContinueClicked){
-            gsap.to(light, {
-                intensity: 20 + Math.random(), 
-                duration: 0.1 + Math.random() * 0.3,
-                repeat: -1,
-                yoyo: true,
-                ease: "power1.inOut",
-            })
-        }
-    },[isContinueClicked])
-
-    useEffect(()=>{
-        if(isExitClicked){
-            gsap.to(light,{
-                intensity: 0,
-                duration: 2,
-                ease: "power1.inOut"
-            })
-
-            const timeOut = setTimeout(()=>{
-                setIsExitClicked(false);
-                navigate("/plane")
-
-            }, 3000)
-
-            return () => clearTimeout(timeOut);
-        }
-    },[isExitClicked])
+    const [isContinueClicked, setIsContinueClicked] = useState<boolean>(false);
+    const [isExitClicked, setIsExitClicked] = useState<boolean>(false);  
 
     return(
-        <>
-            <primitive
-                object={scene}
-                onClick={(e : ThreeEvent<MouseEvent>)=>{
-                    const clicked = e.intersections[0].object
-                    if(clicked.name === "Screen1") handleClick(e)
-                }}
-            />
-            <spotLight
-                ref={lightRef}
-                position={[0, 10, 0]}
-                angle={0.8}
-                penumbra={0.5}
-                intensity={4}
-                castShadow
-            />
-        </>
+        <Canvas
+            camera={{ position: [-24, 8, 22.5], fov: 50 }}
+            style={{ width: "100vw", height: "100vh" }}
+            onCreated={({ gl }) => {
+              gl.setClearColor("#000000");
+            }}
+            shadows
+          >
+            <EffectComposer>
+              <Noise opacity={0.05} />
+            </EffectComposer>
+            <ambientLight intensity={0.05} />
+            <Tvs isContinueClicked={isContinueClicked} isExitClicked={isExitClicked} setIsExitClicked={setIsExitClicked}/>
+            <LampPost customFunctionContinue={setIsContinueClicked} customFunctionExit={setIsExitClicked}/>
+            <Sparkles count={100} scale={[10, 10, 10]} speed={0.5} />
+            <MyName />
+            <OrbitControls /> 
+          </Canvas>
     )
 
 }
