@@ -2,15 +2,18 @@ import { useGLTF } from "@react-three/drei";
 import { ThreeEvent } from "@react-three/fiber";
 import gsap from "gsap";
 import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { CanvasTexture, Mesh, MeshBasicMaterial, SpotLight } from "three";
 
 interface MainSceneProps {
     isContinueClicked : boolean,
-    isExitClicked: boolean
+    isExitClicked: boolean,
+    setIsExitClicked: (arg : boolean) => void;
 }
 
-const MainScene : React.FC<MainSceneProps> = ({isContinueClicked, isExitClicked}) => {
+const MainScene : React.FC<MainSceneProps> = ({isContinueClicked = false, isExitClicked = false, setIsExitClicked}) => {
 
+    const navigate = useNavigate();
     const {scene} = useGLTF("/retropc.glb")
     const screenRef = useRef<Mesh>(null);
     const lightRef = useRef<SpotLight>(null);
@@ -53,7 +56,6 @@ const MainScene : React.FC<MainSceneProps> = ({isContinueClicked, isExitClicked}
                 yoyo: true,
                 ease: "power1.inOut",
             })
-            isExitClicked = false
         }
     },[isContinueClicked])
 
@@ -61,12 +63,18 @@ const MainScene : React.FC<MainSceneProps> = ({isContinueClicked, isExitClicked}
         if(isExitClicked){
             gsap.to(light,{
                 intensity: 0,
-                duration: 0.5,
+                duration: 2,
                 ease: "power1.inOut"
             })
-            isContinueClicked = false
+
+            const timeOut = setTimeout(()=>{
+                setIsExitClicked(false);
+                navigate("/plane")
+
+            }, 3000)
+
+            return () => clearTimeout(timeOut);
         }
-        
     },[isExitClicked])
 
     return(
