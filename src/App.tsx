@@ -10,7 +10,8 @@ import MyName from "./components/MyName";
 
 function App() {
 
-  const [hovered, setHovered] = useState<boolean>(false);
+  const [isContinueClicked, setIsContinueClicked] = useState<boolean>(false);
+  const [isExitClicked, setIsExitClicked] = useState<boolean>(false);
 
   return (
     <Canvas
@@ -25,8 +26,8 @@ function App() {
         <Noise opacity={0.05} />
       </EffectComposer>
       <ambientLight intensity={0.05} />
-      <MainScene hovered={hovered}/>
-      <LampPost customFunction={setHovered} />
+      <MainScene isContinueClicked={isContinueClicked} isExitClicked={isExitClicked}/>
+      <LampPost customFunctionContinue={setIsContinueClicked} customFunctionExit={setIsExitClicked}/>
       <Sparkles count={100} scale={[10, 10, 10]} speed={0.5} />
       <MyName />
       <OrbitControls /> 

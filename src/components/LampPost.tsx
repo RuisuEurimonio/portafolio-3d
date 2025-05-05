@@ -4,10 +4,11 @@ import { useEffect, useRef } from "react";
 import { ThreeEvent } from "@react-three/fiber";
 
 interface LampPostProps {
-  customFunction : (arg : boolean) => void
+  customFunctionContinue : (arg : boolean) => void
+  customFunctionExit : (arg : boolean) => void
 }
 
-const LampPost : React.FC<LampPostProps> = ({customFunction}) => {
+const LampPost : React.FC<LampPostProps> = ({customFunctionContinue, customFunctionExit}) => {
   const { scene }  = useGLTF("/lamp_post.glb");
   const light = useRef<SpotLight>(null);
   const targetRef = useRef<Object3D>(new Object3D());
@@ -25,10 +26,15 @@ const LampPost : React.FC<LampPostProps> = ({customFunction}) => {
     }
   }, [scene]);
 
-  const handleClick = (event : ThreeEvent<MouseEvent>) => {
+  const handleClickContinue = (event : ThreeEvent<MouseEvent>) => {
     event.stopPropagation();
-    customFunction(true);
+    customFunctionContinue(true);
 }
+
+  const handleClickExit = (event : ThreeEvent<MouseEvent>)  => {
+    event.stopPropagation();
+    customFunctionExit(true);
+  }
 
   return (
     <>
@@ -40,7 +46,8 @@ const LampPost : React.FC<LampPostProps> = ({customFunction}) => {
         receiveShadow
         onClick={(e : ThreeEvent<MouseEvent>)=>{
                             const clicked = e.intersections[0].object
-                            if(clicked.name === "Sing1") handleClick(e)
+                            if(clicked.name === "Sing1") handleClickContinue(e)
+                            if(clicked.name === "Sing2") handleClickExit(e)
                         }}
       />
       <spotLight

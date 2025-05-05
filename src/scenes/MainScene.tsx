@@ -5,14 +5,16 @@ import { useEffect, useRef } from "react";
 import { CanvasTexture, Mesh, MeshBasicMaterial, SpotLight } from "three";
 
 interface MainSceneProps {
-    hovered : boolean
+    isContinueClicked : boolean,
+    isExitClicked: boolean
 }
 
-const MainScene : React.FC<MainSceneProps> = ({hovered}) => {
+const MainScene : React.FC<MainSceneProps> = ({isContinueClicked, isExitClicked}) => {
 
     const {scene} = useGLTF("/retropc.glb")
     const screenRef = useRef<Mesh>(null);
     const lightRef = useRef<SpotLight>(null);
+    const light = lightRef.current;
 
     const canvas = document.createElement('canvas');
     canvas.width = 512;
@@ -43,18 +45,29 @@ const MainScene : React.FC<MainSceneProps> = ({hovered}) => {
     }
 
     useEffect(()=>{
-        const light = lightRef.current;
-
-        if(hovered){
+        if(isContinueClicked){
             gsap.to(light, {
-                intensity: 0.2 + Math.random(), 
+                intensity: 20 + Math.random(), 
                 duration: 0.1 + Math.random() * 0.3,
                 repeat: -1,
                 yoyo: true,
                 ease: "power1.inOut",
             })
+            isExitClicked = false
         }
-    },[hovered])
+    },[isContinueClicked])
+
+    useEffect(()=>{
+        if(isExitClicked){
+            gsap.to(light,{
+                intensity: 0,
+                duration: 0.5,
+                ease: "power1.inOut"
+            })
+            isContinueClicked = false
+        }
+        
+    },[isExitClicked])
 
     return(
         <>
@@ -70,7 +83,7 @@ const MainScene : React.FC<MainSceneProps> = ({hovered}) => {
                 position={[0, 10, 0]}
                 angle={0.8}
                 penumbra={0.5}
-                intensity={20}
+                intensity={4}
                 castShadow
             />
         </>
