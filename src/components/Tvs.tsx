@@ -75,10 +75,12 @@ const Tvs: React.FC<MainSceneProps> = ({
   useEffect(() => {
     if(!light) return;
 
+    
+
     if (isExitClicked) {
       gsap.to(light, {
         intensity: 0,
-        duration: 2,
+        duration: 3,
         ease: "power1.inOut",
       });
 

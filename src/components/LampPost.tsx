@@ -48,6 +48,14 @@ const LampPost : React.FC<LampPostProps> = ({customFunctionContinue, customFunct
     customFunctionInExit(status);
   }
 
+  const changeCursor = (status : boolean) => {
+    if(status){
+      document.body.style.cursor = "pointer"
+    } else {
+      document.body.style.cursor = "default"
+    }
+  }
+
   return (
     <>
       <primitive
@@ -65,9 +73,11 @@ const LampPost : React.FC<LampPostProps> = ({customFunctionContinue, customFunct
           handleClickContinue(e);
         }}
         onPointerOver={(e : ThreeEvent<PointerEvent>)=>{
+          changeCursor(true);
           handleHoverInContinue(e, true);
         }}
         onPointerOut={(e: ThreeEvent<PointerEvent>)=>{
+          changeCursor(false);
           handleHoverInContinue(e, false);
         }}  
       > 
@@ -82,10 +92,11 @@ const LampPost : React.FC<LampPostProps> = ({customFunctionContinue, customFunct
           handleClickExit(e);
         }}
         onPointerOver={(e : ThreeEvent<PointerEvent>)=>{
+          changeCursor(true);
           handleHoverInExit(e, true);
         }}
         onPointerOut={(e: ThreeEvent<PointerEvent>)=>{
-          console.log("Salgo")
+          changeCursor(false);
           handleHoverInExit(e, false);
         }}  
       > 
