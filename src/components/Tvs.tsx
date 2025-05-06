@@ -60,8 +60,10 @@ const Tvs: React.FC<MainSceneProps> = ({
     alert("Pantalla clicleada");
   };
 
-  useEffect(() => {
+  const continueAnimation = () =>{
     if(!light) return;
+
+    gsap.killTweensOf(light, "intensity")
 
     if (isContinueClicked) {
       gsap.to(light, {
@@ -70,9 +72,9 @@ const Tvs: React.FC<MainSceneProps> = ({
         ease: "power1.inOut",
       });
     }
-  }, [isContinueClicked]);
+  }
 
-  useEffect(() => {
+  const exitAnimation = () => {
     if(!light) return;
 
     
@@ -91,10 +93,10 @@ const Tvs: React.FC<MainSceneProps> = ({
 
       return () => clearTimeout(timeOut);
     }
-  }, [isExitClicked]);
+  } 
 
-  useEffect(() => {
-    if(!light) return;
+  const onContinueAnimation = () =>{
+    if(!light || isContinueClicked) return;
 
     gsap.killTweensOf(light, "intensity");
 
@@ -109,10 +111,10 @@ const Tvs: React.FC<MainSceneProps> = ({
     } else {
       gsap.to(light, lightNeutral);
     }
-  }, [isContinueHovered]);
+  }
 
-  useEffect(() => {
-    if(!light) return;
+  const onExitAnimation = () => {
+    if(!light || isExitClicked) return;
 
     gsap.killTweensOf(light, "intensity");
     
@@ -127,6 +129,22 @@ const Tvs: React.FC<MainSceneProps> = ({
     } else {
       gsap.to(light, lightNeutral);
     }
+  }
+
+  useEffect(() => {
+    continueAnimation();
+  }, [isContinueClicked]);
+
+  useEffect(() => {
+    exitAnimation();
+  }, [isExitClicked]);
+
+  useEffect(() => {
+    onContinueAnimation();
+  }, [isContinueHovered]);
+
+  useEffect(() => {
+    onExitAnimation();
   }, [isExitHovered]);
 
   return (
