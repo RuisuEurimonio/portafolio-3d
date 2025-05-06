@@ -77,9 +77,17 @@ const LampPost : React.FC<LampPostProps> = ({customFunctionContinue, customFunct
         name="Sing1"
         position={[-18.2, 6.25, 20.4]}
         rotation={[0,-.33,0]}
-        
       > 
         <boxGeometry  args={[.1,.32,1.2]}/>
+        <meshStandardMaterial color={"#f2f"}  opacity={0} transparent={true}/>
+      </mesh>
+      <mesh 
+        name="Sing2"
+        position={[-18.2, 5.6, 20.55]}
+        rotation={[0,10.09,0]}
+      > 
+        <boxGeometry  args={[.1,.32,1.2]}/>
+        <meshStandardMaterial color={"#f2f"}  opacity={0} transparent={true}/>
       </mesh>
       <spotLight
         ref={light}
