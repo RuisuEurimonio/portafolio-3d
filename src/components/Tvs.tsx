@@ -6,120 +6,146 @@ import { useNavigate } from "react-router-dom";
 import { CanvasTexture, Mesh, MeshBasicMaterial, SpotLight } from "three";
 
 interface MainSceneProps {
-    isContinueClicked : boolean,
-    isExitClicked: boolean,
-    setIsExitClicked: (arg : boolean) => void;
-    isContinueHovered : boolean,
-    isExitHovered : boolean
+  isContinueClicked: boolean;
+  isExitClicked: boolean;
+  setIsExitClicked: (arg: boolean) => void;
+  isContinueHovered: boolean;
+  isExitHovered: boolean;
 }
 
-const Tvs : React.FC<MainSceneProps> = ({isContinueClicked = false, isExitClicked = false, setIsExitClicked, isContinueHovered, isExitHovered}) => {
+const Tvs: React.FC<MainSceneProps> = ({
+  isContinueClicked,
+  isExitClicked,
+  setIsExitClicked,
+  isContinueHovered,
+  isExitHovered,
+}) => {
+  const navigate = useNavigate();
+  const { scene } = useGLTF("/retropc.glb");
+  const screenRef = useRef<Mesh>(null);
+  const lightRef = useRef<SpotLight>(null);
+  const light = lightRef.current;
 
-    const navigate = useNavigate();
-    const {scene} = useGLTF("/retropc.glb")
-    const screenRef = useRef<Mesh>(null);
-    const lightRef = useRef<SpotLight>(null);
-    const light = lightRef.current;
+  const lightNeutral = {
+    intensity: 4,
+    duration: 0.3,
+    ease: "power1.inOut",
+  };
 
-    const canvas = document.createElement('canvas');
-    canvas.width = 512;
-    canvas.height = 512
-    const ctx = canvas.getContext("2d");
-    if(ctx){
-        ctx.fillStyle = "black"
-        ctx.fillRect( 100 , 100 , canvas.width, canvas.height)
-        ctx.fillStyle = "white"
-        ctx.font = "15px sans-serif"
-        ctx.fillText("Haz clic aqui", 30, 50)
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d");
+  if (ctx) {
+    ctx.fillStyle = "black";
+    ctx.fillRect(100, 100, canvas.width, canvas.height);
+    ctx.fillStyle = "white";
+    ctx.font = "15px sans-serif";
+    ctx.fillText("Haz clic aqui", 30, 50);
+  }
+
+  const texture = new CanvasTexture(canvas);
+
+  scene.traverse((child) => {
+    if (child.name === "Screen1") {
+      if (child instanceof Mesh) {
+        child.material = new MeshBasicMaterial({ map: texture });
+        screenRef.current = child;
+      }
     }
+  });
 
-    const texture = new CanvasTexture(canvas);
+  const handleClick = (event: ThreeEvent<MouseEvent>) => {
+    event.stopPropagation();
+    alert("Pantalla clicleada");
+  };
 
-    scene.traverse((child)=>{
-        if(child.name === "Screen1"){
-            if(child instanceof Mesh){
-                child.material = new MeshBasicMaterial({map: texture})
-                screenRef.current = child;
-            }
-        }
-    })
+  useEffect(() => {
+    if(!light) return;
 
-    const handleClick = (event : ThreeEvent<MouseEvent>) => {
-        event.stopPropagation();
-        alert("Pantalla clicleada")
+    if (isContinueClicked) {
+      gsap.to(light, {
+        intensity: 20,
+        duration: 0.3,
+        ease: "power1.inOut",
+      });
     }
+  }, [isContinueClicked]);
 
-    useEffect(()=>{
-        if(isContinueClicked){
-            gsap.to(light, {
-                intensity: 20, 
-                duration: 0.3,
-                ease: "power1.inOut",
-            })
-        }
-    },[isContinueClicked])
+  useEffect(() => {
+    if(!light) return;
 
-    useEffect(()=>{
-        if(isExitClicked){
-            gsap.to(light,{
-                intensity: 0,
-                duration: 2,
-                ease: "power1.inOut"
-            })
+    if (isExitClicked) {
+      gsap.to(light, {
+        intensity: 0,
+        duration: 2,
+        ease: "power1.inOut",
+      });
 
-            const timeOut = setTimeout(()=>{
-                setIsExitClicked(false);
-                navigate("/plane")
+      const timeOut = setTimeout(() => {
+        setIsExitClicked(false);
+        navigate("/plane");
+      }, 3000);
 
-            }, 3000)
+      return () => clearTimeout(timeOut);
+    }
+  }, [isExitClicked]);
 
-            return () => clearTimeout(timeOut);
-        }
-    },[isExitClicked])
+  useEffect(() => {
+    if(!light) return;
 
-    useEffect(()=>{
-        if(isContinueHovered){
-            gsap.to(light, {
-                intensity: 20 + Math.random(), 
-                duration: 0.1 + Math.random() * 0.3,
-                repeat: -1,
-                yoyo: true,
-                ease: "power1.inOut",
-            })
-        }
-    },[isContinueHovered])
+    gsap.killTweensOf(light, "intensity");
 
-    useEffect(()=>{
-        if(isExitHovered){
-            gsap.to(light, {
-                intensity: 20 + Math.random(), 
-                duration: 0.1 + Math.random() * 0.3,
-                repeat: -1,
-                yoyo: true,
-                ease: "power1.inOut",
-            })
-        }
-    },[isExitHovered])
+    if (isContinueHovered) {
+      gsap.to(light, {
+        intensity: 20 + Math.random(),
+        duration: 0.1 + Math.random() * 0.3,
+        repeat: -1,
+        yoyo: true,
+        ease: "power1.inOut",
+      });
+    } else {
+      gsap.to(light, lightNeutral);
+    }
+  }, [isContinueHovered]);
 
-    return(
-        <>
-            <primitive
-                object={scene}
-                onClick={(e : ThreeEvent<MouseEvent>)=>{
-                    const clicked = e.intersections[0].object
-                    if(clicked.name === "Screen1") handleClick(e)
-                }}
-            />
-            <spotLight
-                ref={lightRef}
-                position={[0, 10, 0]}
-                angle={0.8}
-                penumbra={0.5}
-                intensity={4}
-                castShadow
-            />
-        </>
-    )
-}
+  useEffect(() => {
+    if(!light) return;
+
+    gsap.killTweensOf(light, "intensity");
+    
+    if (isExitHovered) {
+      gsap.to(light, {
+        intensity: 10 + Math.random(),
+        duration: 0.1 + Math.random() * 0.3,
+        repeat: -1,
+        yoyo: true,
+        ease: "power1.inOut",
+      });
+    } else {
+      gsap.to(light, lightNeutral);
+    }
+  }, [isExitHovered]);
+
+  return (
+    <>
+      <primitive
+        object={scene}
+        onClick={(e: ThreeEvent<MouseEvent>) => {
+          const clicked = e.intersections[0].object;
+          if (clicked.name === "Screen1") handleClick(e);
+        }}
+      />
+      <spotLight
+        ref={lightRef}
+        position={[0, 10, 0]}
+        angle={0.8}
+        penumbra={0.5}
+        intensity={4}
+        castShadow
+      />
+    </>
+  );
+};
 
 export default Tvs;

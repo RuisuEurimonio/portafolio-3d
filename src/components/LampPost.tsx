@@ -56,27 +56,20 @@ const LampPost : React.FC<LampPostProps> = ({customFunctionContinue, customFunct
         rotation={[0, 20, 0]}
         castShadow
         receiveShadow
-        onClick={(e : ThreeEvent<MouseEvent>)=>{
-                            const clicked = e.intersections[0].object
-                            if(clicked.name === "Sing1") handleClickContinue(e)
-                            if(clicked.name === "Sing2") handleClickExit(e)
-                        }}
-        onPointerOver={(e: ThreeEvent<PointerEvent>)=>{
-          const hoveredObject = e.intersections[0]?.object;
-          if(hoveredObject){
-            if(hoveredObject.name === "Sing1"){
-              handleHoverInContinue(e, true);
-            }
-            if(hoveredObject.name === "Sing2"){
-              handleHoverInExit(e, true);
-            }
-          }
-        }}
       />
       <mesh 
         name="Sing1"
         position={[-18.2, 6.25, 20.4]}
         rotation={[0,-.33,0]}
+        onClick={(e: ThreeEvent<MouseEvent>)=>{
+          handleClickContinue(e);
+        }}
+        onPointerOver={(e : ThreeEvent<PointerEvent>)=>{
+          handleHoverInContinue(e, true);
+        }}
+        onPointerOut={(e: ThreeEvent<PointerEvent>)=>{
+          handleHoverInContinue(e, false);
+        }}  
       > 
         <boxGeometry  args={[.1,.32,1.2]}/>
         <meshStandardMaterial color={"#f2f"}  opacity={0} transparent={true}/>
@@ -85,6 +78,16 @@ const LampPost : React.FC<LampPostProps> = ({customFunctionContinue, customFunct
         name="Sing2"
         position={[-18.2, 5.6, 20.55]}
         rotation={[0,10.09,0]}
+        onClick={(e: ThreeEvent<MouseEvent>)=>{
+          handleClickExit(e);
+        }}
+        onPointerOver={(e : ThreeEvent<PointerEvent>)=>{
+          handleHoverInExit(e, true);
+        }}
+        onPointerOut={(e: ThreeEvent<PointerEvent>)=>{
+          console.log("Salgo")
+          handleHoverInExit(e, false);
+        }}  
       > 
         <boxGeometry  args={[.1,.32,1.2]}/>
         <meshStandardMaterial color={"#f2f"}  opacity={0} transparent={true}/>
