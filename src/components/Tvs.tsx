@@ -1,5 +1,6 @@
 import { useGLTF } from "@react-three/drei";
-import { ThreeEvent } from "@react-three/fiber";
+import { ThreeEvent, useThree } from "@react-three/fiber";
+import * as THREE from "three"
 import gsap from "gsap";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
@@ -21,6 +22,7 @@ const Tvs: React.FC<MainSceneProps> = ({
   isExitHovered,
 }) => {
   const navigate = useNavigate();
+  const { camera } = useThree();
   const { scene } = useGLTF("/retropc.glb");
   const screenRef = useRef<Mesh>(null);
   const lightRef = useRef<SpotLight>(null);
@@ -63,14 +65,37 @@ const Tvs: React.FC<MainSceneProps> = ({
   const continueAnimation = () =>{
     if(!light) return;
 
+    const target = new THREE.Vector3(0, 0, 0);
+
+    const lookAtTarget = { x: 0, y: 2.2, z: 0 };
+
     gsap.killTweensOf(light, "intensity")
 
     if (isContinueClicked) {
       gsap.to(light, {
         intensity: 20,
         duration: 0.3,
-        ease: "power1.inOut",
+        ease: "back.inOut",
       });
+      gsap.to(camera.position,{
+        x: .4,
+        y: 5,
+        z: 8,
+        duration: 3,
+        ease: "power1.inOut",
+        onUpdate: () => {
+            camera.lookAt(target); // Mientras se mueve, sigue mirando al objetivo actual
+          }
+      })
+      gsap.to(target, {
+        ...lookAtTarget,
+        duration: 3,
+        ease: "power1.inOut",
+        onUpdate: () => {
+          camera.lookAt(target); // Actualiza el objetivo mientras cambia
+        }
+      })
+      
     }
   }
 

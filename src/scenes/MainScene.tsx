@@ -1,7 +1,7 @@
 import { Canvas } from "@react-three/fiber";
 import { EffectComposer, Noise } from "@react-three/postprocessing";
 import LampPost from "../components/LampPost";
-import { OrbitControls, Sparkles } from "@react-three/drei";
+import { Sparkles } from "@react-three/drei";
 import MyName from "../components/MyName";
 import { useState } from "react";
 import Tvs from "../components/Tvs";
@@ -40,7 +40,6 @@ const MainScene = () => {
       />
       <Sparkles count={100} scale={[10, 10, 10]} speed={0.5} />
       <MyName />
-      <OrbitControls />
     </Canvas>
   );
 };
