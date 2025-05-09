@@ -1,10 +1,10 @@
-import { Html, useGLTF } from "@react-three/drei";
+import { useGLTF } from "@react-three/drei";
 import { ThreeEvent, useThree } from "@react-three/fiber";
 import * as THREE from "three"
-import gsap from "gsap";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { CanvasTexture, Mesh, MeshBasicMaterial, SpotLight } from "three";
+import { continueAnimation, exitAnimation, onContinueAnimation, onExitAnimation } from "../canvas/useTVAnimations";
 
 interface MainSceneProps {
   isContinueClicked: boolean;
@@ -38,114 +38,25 @@ const Tvs: React.FC<MainSceneProps> = ({
     alert("Pantalla clicleada");
   };
 
-  const continueAnimation = () =>{
-    if(!light) return;
-
-    const target = new THREE.Vector3(0, 0, 0);
-
-    const lookAtTarget = { x: 0, y: 2.2, z: 0 };
-
-    gsap.killTweensOf(light, "intensity")
-
-    if (isContinueClicked) {
-      gsap.to(light, {
-        intensity: 20,
-        duration: 0.3,
-        ease: "back.inOut",
-      });
-      gsap.to(camera.position,{
-        x: .4,
-        y: 5,
-        z: 8,
-        duration: 3,
-        ease: "power1.inOut",
-        onUpdate: () => {
-            camera.lookAt(target); 
-          }
-      })
-      gsap.to(target, {
-        ...lookAtTarget,
-        duration: 3,
-        ease: "power1.inOut",
-        onUpdate: () => {
-          camera.lookAt(target);
-        }
-      })
-      
-    }
-  }
-
-  const exitAnimation = () => {
-    if(!light) return;
-
-    
-
-    if (isExitClicked) {
-      gsap.to(light, {
-        intensity: 0,
-        duration: 3,
-        ease: "power1.inOut",
-      });
-
-      const timeOut = setTimeout(() => {
-        setIsExitClicked(false);
-        navigate("/plane");
-      }, 3000);
-
-      return () => clearTimeout(timeOut);
-    }
-  } 
-
-  const onContinueAnimation = () =>{
-    if(!light || isContinueClicked) return;
-
-    gsap.killTweensOf(light, "intensity");
-
-    if (isContinueHovered) {
-      gsap.to(light, {
-        intensity: 20 + Math.random(),
-        duration: 0.1 + Math.random() * 0.3,
-        repeat: -1,
-        yoyo: true,
-        ease: "power1.inOut",
-      });
-    } else {
-      gsap.to(light, lightNeutral);
-    }
-  }
-
-  const onExitAnimation = () => {
-    if(!light || isExitClicked) return;
-
-    gsap.killTweensOf(light, "intensity");
-    
-    if (isExitHovered) {
-      gsap.to(light, {
-        intensity: 10 + Math.random(),
-        duration: 0.1 + Math.random() * 0.3,
-        repeat: -1,
-        yoyo: true,
-        ease: "power1.inOut",
-      });
-    } else {
-      gsap.to(light, lightNeutral);
-    }
-  }
 
   useEffect(() => {
-    continueAnimation();
+    if(!light) return;
+    continueAnimation(isContinueClicked, light, camera);
   }, [isContinueClicked]);
 
   useEffect(() => {
-    exitAnimation();
+    if(!light) return;
+    exitAnimation(isExitClicked, light, setIsExitClicked, navigate);
   }, [isExitClicked]);
 
   useEffect(() => {
-    onContinueAnimation();
+    if(!light) return;
+    onContinueAnimation(isContinueClicked, isContinueHovered, light, lightNeutral);
   }, [isContinueHovered]);
 
   useEffect(() => {
-    onExitAnimation();
+    if(!light) return;
+    onExitAnimation(isExitClicked, isExitHovered, light, lightNeutral);
   }, [isExitHovered]);
 
   const arrayCanvas = useMemo(()=>{
