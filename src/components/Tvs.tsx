@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { CanvasTexture, Mesh, MeshBasicMaterial, SpotLight } from "three";
 import { continueAnimation, exitAnimation, onContinueAnimation, onExitAnimation } from "../canvas/useTVAnimations";
+import { createArrayCanvas, drawCanvas } from "../canvas/screenTextures";
 
 interface MainSceneProps {
   isContinueClicked: boolean;
@@ -26,6 +27,7 @@ const Tvs: React.FC<MainSceneProps> = ({
   const { scene } = useGLTF("/retropc.glb");
   const lightRef = useRef<SpotLight>(null);
   const light = lightRef.current;
+  const arrayCanvas = useMemo(()=> createArrayCanvas(9, 215, 215),[]);
 
   const lightNeutral = {
     intensity: 4,
@@ -58,26 +60,6 @@ const Tvs: React.FC<MainSceneProps> = ({
     if(!light) return;
     onExitAnimation(isExitClicked, isExitHovered, light, lightNeutral);
   }, [isExitHovered]);
-
-  const arrayCanvas = useMemo(()=>{
-    return Array.from({length: 9}, ()=>{
-      const canvas = document.createElement("canvas");
-      canvas.width = 225;
-      canvas.height = 225;
-      return canvas;
-    })
-  },[])
-
-  const drawCanvas = (canvas : HTMLCanvasElement, text : string) => {
-    const ctx = canvas.getContext("2d");
-    if(!ctx) return;
-
-    ctx.fillStyle = "#f2f";
-    ctx.fillRect(0,0, canvas.width, canvas.height);
-    ctx.fillStyle = "white";
-    ctx.font = "20px sans-serif";
-    ctx.fillText(text, 0 , 0)
-  }
 
   useEffect(()=>{
     scene.traverse((child)=>{
