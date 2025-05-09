@@ -1,8 +1,8 @@
-import { useGLTF } from "@react-three/drei";
+import { Html, useGLTF } from "@react-three/drei";
 import { ThreeEvent, useThree } from "@react-three/fiber";
 import * as THREE from "three"
 import gsap from "gsap";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CanvasTexture, Mesh, MeshBasicMaterial, SpotLight } from "three";
 
@@ -24,7 +24,6 @@ const Tvs: React.FC<MainSceneProps> = ({
   const navigate = useNavigate();
   const { camera } = useThree();
   const { scene } = useGLTF("/retropc.glb");
-  const screenRef = useRef<Mesh>(null);
   const lightRef = useRef<SpotLight>(null);
   const light = lightRef.current;
 
@@ -33,29 +32,6 @@ const Tvs: React.FC<MainSceneProps> = ({
     duration: 0.3,
     ease: "power1.inOut",
   };
-
-  const canvas = document.createElement("canvas");
-  canvas.width = 512;
-  canvas.height = 512;
-  const ctx = canvas.getContext("2d");
-  if (ctx) {
-    ctx.fillStyle = "black";
-    ctx.fillRect(100, 100, canvas.width, canvas.height);
-    ctx.fillStyle = "white";
-    ctx.font = "15px sans-serif";
-    ctx.fillText("Haz clic aqui", 30, 50);
-  }
-
-  const texture = new CanvasTexture(canvas);
-
-  scene.traverse((child) => {
-    if (child.name === "Screen1") {
-      if (child instanceof Mesh) {
-        child.material = new MeshBasicMaterial({ map: texture });
-        screenRef.current = child;
-      }
-    }
-  });
 
   const handleClick = (event: ThreeEvent<MouseEvent>) => {
     event.stopPropagation();
@@ -84,7 +60,7 @@ const Tvs: React.FC<MainSceneProps> = ({
         duration: 3,
         ease: "power1.inOut",
         onUpdate: () => {
-            camera.lookAt(target); // Mientras se mueve, sigue mirando al objetivo actual
+            camera.lookAt(target); 
           }
       })
       gsap.to(target, {
@@ -92,7 +68,7 @@ const Tvs: React.FC<MainSceneProps> = ({
         duration: 3,
         ease: "power1.inOut",
         onUpdate: () => {
-          camera.lookAt(target); // Actualiza el objetivo mientras cambia
+          camera.lookAt(target);
         }
       })
       
@@ -172,13 +148,51 @@ const Tvs: React.FC<MainSceneProps> = ({
     onExitAnimation();
   }, [isExitHovered]);
 
+  const arrayCanvas = useMemo(()=>{
+    return Array.from({length: 9}, ()=>{
+      const canvas = document.createElement("canvas");
+      canvas.width = 225;
+      canvas.height = 225;
+      return canvas;
+    })
+  },[])
+
+  const drawCanvas = (canvas : HTMLCanvasElement, text : string) => {
+    const ctx = canvas.getContext("2d");
+    if(!ctx) return;
+
+    ctx.fillStyle = "#f2f";
+    ctx.fillRect(0,0, canvas.width, canvas.height);
+    ctx.fillStyle = "white";
+    ctx.font = "20px sans-serif";
+    ctx.fillText(text, 0 , 0)
+  }
+
+  useEffect(()=>{
+    scene.traverse((child)=>{
+      if(child instanceof Mesh){
+        
+        for(let i = 0 ; i < 9 ; i++){
+          const screenName = `Screen${i+1}`;
+          if(child.name == screenName){
+            drawCanvas(arrayCanvas[i], screenName);
+            const texture = new CanvasTexture(arrayCanvas[i]);
+            texture.needsUpdate = true;
+            child.material = new MeshBasicMaterial({map: texture, side: THREE.DoubleSide});
+            break;
+          }
+        }
+      }
+    })
+  },[scene])
+
   return (
     <>
       <primitive
         object={scene}
         onClick={(e: ThreeEvent<MouseEvent>) => {
           const clicked = e.intersections[0].object;
-          if (clicked.name === "Screen1") handleClick(e);
+          if (clicked.name === "Screen9") handleClick(e);
         }}
       />
       <spotLight
